@@ -1,6 +1,9 @@
 import 'package:bloc_count_app/app_bloc.dart';
 import 'package:bloc_count_app/app_events.dart';
 import 'package:bloc_count_app/app_states.dart';
+import 'package:bloc_count_app/visibility/visibility_bloc.dart';
+import 'package:bloc_count_app/visibility/visibility_state.dart';
+import 'package:bloc_count_app/visibility/visibity_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -13,10 +16,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => AppBloc(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => AppBloc(),
+        ),
+        BlocProvider(create: (context) => VisibilityBloc())
+      ],
       child: MaterialApp(
-        title: 'Flutter Demo',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
@@ -37,8 +45,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,10 +65,20 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: Theme.of(context).textTheme.headlineMedium,
               );
             }),
+            BlocBuilder<VisibilityBloc,VisibilityState>(builder: (context, state) {
+              return Visibility(
+                visible: state.isVisible,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                  height: 200,color: Colors.amber,
+                                ),
+                ));
+            })
           ],
         ),
       ),
-      floatingActionButton: Row(     
+      floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           FloatingActionButton(
@@ -71,11 +87,23 @@ class _MyHomePageState extends State<MyHomePage> {
             tooltip: 'Increment',
             child: const Icon(Icons.add),
           ),
-         FloatingActionButton(
+          FloatingActionButton(
             onPressed: () =>
                 BlocProvider.of<AppBloc>(context).add(Decreament()),
             tooltip: 'Decrement',
             child: const Icon(Icons.remove),
+          ),
+          FloatingActionButton(
+            onPressed: () => BlocProvider.of<VisibilityBloc>(context)
+                .add(VisibilityShowEvent()),
+            tooltip: 'Decrement',
+            child: const Text("show"),
+          ),
+          FloatingActionButton(
+            onPressed: () => BlocProvider.of<VisibilityBloc>(context)
+                .add(VisibilityHideEvent()),
+            tooltip: 'Decrement',
+            child: const Text("hide"),
           ),
         ],
       ),
